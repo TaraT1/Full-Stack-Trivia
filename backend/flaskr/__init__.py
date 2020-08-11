@@ -8,6 +8,17 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+#Bookshelf approach for pagination
+def paginate_questions(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start =  (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+
+    return current_questions
+
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -16,16 +27,34 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
+  #CORS (Cross Origin Resources Sharing)
+  cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
+  #CORS Headers (Ref: 3.4)
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, DELETE')
+    return response
 
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  @app.route('/categories')
+  def get_categories():
+    result = Category.query.all()
+
+    if len(result) == 0:
+      abort(404)
+    
+    return result
+
+    #incorporate error
 
 
   '''
@@ -34,12 +63,35 @@ def create_app(test_config=None):
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
   number of total questions, current category, categories. 
-
+    
   TEST: At this point, when you start the application
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route('/questions')
+  def get_questions():
+    selection = Question.query.order_by(Question.id).all()
+    #paginate results, 10 questions; Using Bookshelf approach    
+    current_questions = paginate_questions(request, selection)
+    '''
+    for question in current_questions:
+      category = Question.category
+      total_qs
+      current cat
+      #categories
+    '''
+    if len(current_questions) == 0:
+      abort(404) #check
+    
+    return jsonify ({
+      'questions': current_questions,
+      'total_questions': len(Question.query.all()),
+      #'current_category': category,
+      #'categories': len(category)
+    })
+
+  
 
   '''
   @TODO: 
@@ -48,6 +100,26 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  #Delete question; check endpoint name in FE
+  @app.route('/questions/<int:question_id'), methods=['DELETE'])
+  def delete_question(question_id):
+    try:
+      question=Question.query.filter(Question.id==question_id).one_or_none()
+
+      if question is None:
+        abort(404)
+
+      question.delete()
+      selection = Question.query.order_by(Question.id).all()
+      current_questions = paginate_questions(request, selection)
+
+      return jsonify({
+        'deleted': question_id,
+        
+      })
+
+    except:
+      abort(422)
 
   '''
   @TODO: 
