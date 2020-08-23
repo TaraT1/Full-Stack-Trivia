@@ -107,10 +107,10 @@ def create_app(test_config=None):
       "current_category": category,
       "categories": categories
     })
-    '''
+  '''
 
   '''
-  @TODO: Done
+  #@TODO: Done
   Create an endpoint to DELETE question using a question ID. 
 
   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -157,8 +157,8 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
-  
-  @app.route('/questions, methods=['POST'])
+  '''
+  @app.route('/questions', methods=['POST'])
   def create_question:
     #From form: question, answer, difficulty, category, cat id, 
     # db.session.add()?
