@@ -8,16 +8,16 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
-#Bookshelf approach for pagination
+#Bookshelf approach from course for pagination
 def paginate_questions(request, selection):
-    page = request.args.get('page', 1, type=int)
-    start =  (page - 1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
+  page = request.args.get('page', 1, type=int)
+  start =  (page - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
 
-    questions = [question.format() for question in selection]
-    current_questions = questions[start:end]
+  questions = [question.format() for question in selection]
+  current_questions = questions[start:end]
 
-    return current_questions
+  return current_questions
 
 def create_app(test_config=None):
   # create and configure the app
@@ -46,16 +46,18 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-  @app.route('/categories')
+  @app.route('/categories') #incorporated from kbase not json serializable error
   def get_categories():
-    result = Category.query.all()
+    categories = [category.format() for category in Category.query.all()]
+    #categories = list(map(Category.format, Category.query.all()))
 
-    if len(result) == 0:
+    if len(categories) == 0:
       abort(404) #resource not found
-      
-
-    return result 
-
+    
+    return jsonify({
+      "success": True,
+      "categories": categories
+    })
   '''
   @TODO: Done
   Create an endpoint to handle GET requests for questions, 
@@ -68,21 +70,44 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-  @app.route('/questions')
+  @app.route('/questions', methods=['GET'])
   def get_questions():
-    selection = Question.query.order_by(Question.id).all()
-    #paginate results, 10 questions; Using Bookshelf approach    
+    #from def paginate_questions; Ref'd: load questions in kbase
+    selection = Question.query.all()
     current_questions = paginate_questions(request, selection)
 
     if len(current_questions) == 0:
+      abort(404) #resource not found 
+
+    return jsonify({
+      "questions": current_questions,
+      "total_questions": len(selection)
+    }) 
+
+  '''
+  Error: TypeError: Object of type InstrumentedAttribute is not JSON serializable
+  @app.route('/questions', methods=['GET'])
+  def get_questions():
+    questions = [question.format() for question in Question.query.all()]
+    #questions = list(map(Question.format, Question.query.all()))
+    categories = [category.format() for category in Category.query.all()]
+    #categories = list(map(Category.format, Category.query.all()))
+    #categories = Category.query.all()
+    
+    if len(questions) == 0:
       abort(404) #resource not found
     
-    return jsonify ({
-      'questions': current_questions,
-      'total_questions': len(Question.query.all()),
-      'current_category': category,
-      'categories': len(category)
+    #current category
+    for question in questions:
+      category = [Question.category]
+
+    return jsonify({
+      "questions": questions,
+      "total_questions": len(questions), 
+      "current_category": category,
+      "categories": categories
     })
+    '''
 
   '''
   @TODO: Done
@@ -91,8 +116,9 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
-  #Delete question; check endpoint name in FE
-  @app.route('/questions/<int:question_id', methods=['DELETE'])
+
+  #**Delete question; check endpoint name in FE
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     try:
       question=Question.query.filter(Question.id==question_id).one_or_none()
@@ -119,6 +145,7 @@ def create_app(test_config=None):
 
     finally:
       db.session.close()
+  
 
   '''
   @TODO: 
@@ -130,11 +157,12 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  
   @app.route('/questions, methods=['POST'])
   def create_question:
     #From form: question, answer, difficulty, category, cat id, 
     # db.session.add()?
-    
+  '''
 
 
   '''
@@ -175,21 +203,21 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-      @app.errorhandler(404)
-    def not_found(error):
-        return jsonify({
-            "success": False, 
-            "error": 404,
-            "message": "resource not found"
-        }), 404
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 404,
+      "message": "resource not found"
+  }), 404
 
-    @app.errorhandler(422)
-    def unprocessable(error):
-        return jsonify({
-            "success": False, 
-            "error": 422,
-            "message": "unprocessable"
-        }), 422
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      "success": False, 
+      "error": 422,
+      "message": "unprocessable"
+    }), 422
 
   return app
 
