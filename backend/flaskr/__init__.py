@@ -75,13 +75,17 @@ def create_app(test_config=None):
     #from def paginate_questions; Ref'd: load questions in kbase
     selection = Question.query.all()
     current_questions = paginate_questions(request, selection)
+    categories = [category.format() for category in Category.query.all()]
 
     if len(current_questions) == 0:
       abort(404) #resource not found 
 
     return jsonify({
+      "success": True,
       "questions": current_questions,
-      "total_questions": len(selection)
+      "total_questions": len(selection),
+      "categories": categories,
+      "current_category": None
     }) 
 
   '''
