@@ -8,16 +8,19 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+'''
 #Bookshelf approach from course for pagination
 def paginate_questions(request, selection):
   page = request.args.get('page', 1, type=int)
   start =  (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
 
+  #questions = {question.format() for question in selection}
   questions = [question.format() for question in selection]
   current_questions = questions[start:end]
 
   return current_questions
+  '''
 
 def create_app(test_config=None):
   # create and configure the app
@@ -45,10 +48,10 @@ def create_app(test_config=None):
   @TODO: Done
   Create an endpoint to handle GET requests 
   for all available categories.
-  '''
+  
   @app.route('/categories') #incorporated from kbase not json serializable error
   def get_categories():
-    categories = [category.format() for category in Category.query.all()]
+    categories = {category.format() for category in Category.query.all()}
     #categories = list(map(Category.format, Category.query.all()))
 
     if len(categories) == 0:
@@ -58,7 +61,9 @@ def create_app(test_config=None):
       "success": True,
       "categories": categories
     })
-  '''
+  
+
+  
   @TODO: Done
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
@@ -69,13 +74,14 @@ def create_app(test_config=None):
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
-  '''
+  
+  #checking
   @app.route('/questions', methods=['GET'])
   def get_questions():
     #from def paginate_questions; Ref'd: load questions in kbase
     selection = Question.query.all()
     current_questions = paginate_questions(request, selection)
-    categories = [category.format() for category in Category.query.all()]
+    categories = {category.format() for category in Category.query.all()}
 
     if len(current_questions) == 0:
       abort(404) #resource not found 
@@ -86,7 +92,39 @@ def create_app(test_config=None):
       "total_questions": len(selection),
       "categories": categories,
       "current_category": None
-    }) 
+    })
+  '''
+  #kbase Rahul Dev S Objects are not valid. At least it fucking works
+  @app.route('/categories', methods=['GET'])
+  def get_categories():
+      page = request.args.get('page', 1, type=int)
+      start = (page -1) * 10
+      end   = start + 10
+      categories = Category.query.all()
+      formatted_categories = {category.id: category.type for category in categories}
+      return jsonify({
+          'success': True,
+          'categories': formatted_categories,
+      })
+
+  @app.route('/questions')
+  def get_questions():
+      page = request.args.get('page', 1, type=int)
+      start = (page-1) * 10
+      end = start + 10
+      questions = Question.query.all()
+      formatted_questions = [question.format() for question in questions]
+      categories = Category.query.all()
+      formatted_categories = {category.id: category.type for category in categories}
+      return jsonify({
+          'success': True,
+          'questions': formatted_questions[start:end],
+          'total_questions': len(formatted_questions),
+          'categories': formatted_categories,
+          'current_category': None
+      })
+  
+
 
   '''
   Error: TypeError: Object of type InstrumentedAttribute is not JSON serializable
@@ -124,9 +162,11 @@ def create_app(test_config=None):
   #**Delete question; check endpoint name in FE
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
+    question_id = request.json.get('id')
+    
     try:
-      question=Question.query.filter(Question.id==question_id).one_or_none()
-      
+      get_questions=Question.query.filter(Question.id==question_id).one_or_none()
+
 
       if question is None:
         abort(404) #resource notfound
@@ -139,7 +179,8 @@ def create_app(test_config=None):
       current_questions = paginate_questions(request, selection)
 
       return jsonify({
-        'deleted': question_id,
+        "success": True,
+        "deleted": question_id,
         
       })
 
@@ -147,12 +188,8 @@ def create_app(test_config=None):
       abort(422) #unprocessable
       db.session.rollback()
 
-    finally:
-      db.session.close()
-  
-
   '''
-  @TODO: 
+  @TODO: *CHECK
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
   category, and difficulty score.
@@ -172,7 +209,7 @@ def create_app(test_config=None):
     
     # db.session.add()
     try:
-      question=Question(question=new_question, answer=new_answer, category=new_category, difficuly=new_difficulty)
+      question = Question(question=new_question, answer=new_answer, category=category, difficuly=difficulty)
       question.insert()
 
       return jsonify({
@@ -187,7 +224,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @TODO: *CHECK
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -196,38 +233,61 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  @app.route('/search_question', methods=['POST'])
+  '''Testing@app.route('/search', methods=['POST'])
   def search_question():
     
     search_term = request.json.get('search_term')
     #query Question.question db for search term
     questions = Question.query.filter(search_term).question.all()
     total_questions = len(Question.query.all())
-    current_category = Question(category)
-    if search is None:
+    current_category = Question(category) #for each question?
+  
+    if questions is None:
       abort(404) #resource not found
     
-      for question in questions_list:
+      for question in questions:
         return jsonify({
-          "question": question,
+          "success": True,
+          "questions": questions,
           "answer": answer,
           "category": category,
           "difficulty": difficulty
         })
+  '''
 
 
   '''
-  @TODO: 
+  @TODO: *CHECK
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-  @app.route('/questions', methods=['GET'])
-  def category_questions():
-    category=request.json.get('category')
-    questions = Question.query.filter(category=category).all()
+  '''Testing@app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_by_category(category_id):
+    category_id=request.json.get('category_id')
+    #get_questions = {Question.query.filter(Question.category == category_id).all()}
+    
+    #using kbase keep getting error 422 
+    selection = Question.query.filter(Question.category == category_id).all()
+    #formatted_questions = {question.format() for question in selection}
+
+    current_questions = paginate_questions(request, selection)
+    
+
+    if len(current_questions) is None:
+      abort(404) #resource not found
+
+    return jsonify({
+      "success": True,
+      "questions": current_questions,
+      "total_questions": len(selection),
+      "current_category": category_id
+
+    })
+
+  '''
 
 
 
