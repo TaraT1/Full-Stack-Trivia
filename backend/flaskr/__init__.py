@@ -35,7 +35,7 @@ def create_app(test_config=None):
   cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''
-  @TODO: Done Use the after_request decorator to set Access-Control-Allow
+  @TODO: DONE Use the after_request decorator to set Access-Control-Allow
   '''
   #CORS Headers (Ref: 3.4)
   @app.after_request
@@ -45,7 +45,7 @@ def create_app(test_config=None):
     return response
 
   '''
-  @TODO: Done
+  @TODO: DONE
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
@@ -53,7 +53,7 @@ def create_app(test_config=None):
   #kbase Rahul Dev S Objects are not valid. At least it fucking works
   @app.route('/categories', methods=['GET'])
   def get_categories():
-    categories = {category.id: category.type for category in Category.query.all()}#.type?
+    categories = {Category.id: Category.type for category in Category.query.all()}#.type?
 
     if len(categories) == 0:
       abort(404) #resource not found
@@ -108,18 +108,18 @@ def create_app(test_config=None):
   #**Delete question; check endpoint name in FE
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
-    question_id = request.json.get('id')
+    question_id = request.json.get('id') #id from QuestionView.js
     
     try:
       get_questions=Question.query.filter(Question.id==question_id).one_or_none()
 
 
       if question is None:
-        abort(404) #resource notfound
+        abort(404) #resource not found
       
       #db actions
       db.session.delete(question_id)
-      db.session.commit()
+      #db.session.commit() #built into models
       
       selection = Question.query.order_by(Question.id).all()
       current_questions = paginate_questions(request, selection)
@@ -132,7 +132,7 @@ def create_app(test_config=None):
 
     except:
       abort(422) #unprocessable
-      db.session.rollback()
+      #db.session.rollback()
 
   '''
   @TODO: Done 
@@ -145,7 +145,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-  @app.route('/questions', methods=['POST'])
+  @app.route('/questions', methods=['POST']) #CHECK
   def create_question():
     #From form: question, answer, difficulty, category
     new_question = request.json.get('question')
@@ -179,26 +179,42 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  @app.route('/search', methods=['POST'])
-  def search_question(search_term):
-    
-    search_term = request.json.get('search_term')
+  #QuestionView #124, #79 submitSearch, search_term, url: /questions POST, 
+  # questions, total_questions, current_category
+  #135 submitSearch: id, question, answer, category, difficulty
+  @app.route('/questions/search', methods=['POST'])
+  def search_question():
+    #search_term = request.json.get('searchTerm')
+    search_term = request.form.get('search_term', '')
     #query Question.question db for search term
-    questions = Question.query.filter(search_term).all()#???
-    total_questions = len(questions)
-    current_category = Question(category) #for each question?
-  
-    if questions is None:
+    results = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
+    #searched_question=Question.query.filter(Question.question.ilike('%{}%'.format(data['searchTerm']))).all()
+    total_questions = len(Question.query.all())
+    #current_category = Question.category #for each question?
+
+    if results is None:
       abort(404) #resource not found
     
-      for question in questions:
-        return jsonify({
-          "success": True,
-          "questions": questions,
-          "answer": answer,
-          "category": category,
-          "difficulty": difficulty
-        })
+    '''
+    #Works w new errors - testing for working from case insensitive search kbase
+    return jsonify({
+      "success": True,
+      "results": results
+    })
+    '''
+    
+    '''
+    for question in questions:
+      return jsonify({
+        "success": True,
+        "questions": questions,
+        "id": Question(id),
+        "question": Question(question),
+        "answer": Question(answer),
+        "category": Question(category),
+        "difficulty": Question(difficulty)
+      })
+    '''
 
 
   '''
