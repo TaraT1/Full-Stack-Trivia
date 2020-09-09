@@ -49,20 +49,49 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
-  #kbase Rahul Dev S Objects are not valid. At least it fucking works
+  #revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
   @app.route('/categories', methods=['GET'])
   def get_categories():
-    categories = {Category.id: Category.type for category in Category.query.all()}#.type?
+    categories = Category.query.all()
+    #categories = {category.id: category.type for category in all_categories}
+    formatted_categories = {} #dictionary
+    for category in categories:
+      formatted_categories[category.id] = category.type
+
+    if len(categories) == 0:
+      abort(404) #resource not found
+
+    return jsonify({
+      "success": True,
+      "categories": formatted_categories,
+      "total_categories": len(categories)
+    })
+  
+  #categories revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
+  #kbase Rahul Dev S Objects are not valid. At least it fucking works
+  #QView: getByCategory url /categories/id/questions
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_by_categories(category_id):
+    categories = Category.query.all()
+    questions = Question.query.filter(Category.id == category_id).all()
+    #formatted_categories = {category.id: category.type for category in categories}
+
+
+    formatted_categories = {} #dictionary
+    for category in categories:
+      formatted_categories[category.id] = category.type
 
     if len(categories) == 0:
       abort(404) #resource not found
   
     return jsonify({
       "success": True,
-      "categories": categories
+      "questions": questions,
+      "total_questions": len(Question.query.all()),
+      "current_category": None,
+      "categories": formatted_categories
     })
-
+  
   '''
   @TODO: Done
   Create an endpoint to handle GET requests for questions, 
@@ -77,23 +106,27 @@ def create_app(test_config=None):
   
   '''
 
-  @app.route('/questions')#question?page (QuestionView.js)
+  @app.route('/questions')#*question?page=$ (QuestionView.js)
   def get_questions():
     page = request.args.get('page', 1, type=int)
     start = (page-1) * 10
     end = start + 10
     questions = [question.format() for question in Question.query.all()]
-    categories = {category.id: category.type for category in Category.query.all()}
-    #get_by_category(id)
 
     if len(questions) == 0:
       abort(404) #resource not found 
 
+    #categories = {category.id: category.type for category in all_categories}
+    categories = Category.query.all()
+    formatted_categories = {} #dictionary
+    for category in categories:
+      formatted_categories[category.id] = category.type
+      
     return jsonify({
       "success": True,
       "questions": questions[start:end],
       "total_questions": len(questions),
-      "categories": categories,
+      "categories": formatted_categories,
       "current_category": None
     })
   
@@ -184,24 +217,25 @@ def create_app(test_config=None):
   #135 submitSearch: id, question, answer, category, difficulty
   @app.route('/questions/search', methods=['POST'])
   def search_question():
-    #search_term = request.json.get('searchTerm')
-    search_term = request.form.get('search_term', '')
+    search_term = request.json.get('searchTerm') #*?json or form
+    #search_term = request.json.get('search_term', '')
     #query Question.question db for search term
-    results = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
+    questions = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
     #searched_question=Question.query.filter(Question.question.ilike('%{}%'.format(data['searchTerm']))).all()
     total_questions = len(Question.query.all())
     #current_category = Question.category #for each question?
+    #current_category = {category.id: category.type for category in categories}
 
-    if results is None:
+    if questions is None:
       abort(404) #resource not found
     
-    '''
     #Works w new errors - testing for working from case insensitive search kbase
     return jsonify({
       "success": True,
-      "results": results
+      "questions": questions,
+      "total_questions": total_questions,
+      "current_category": None
     })
-    '''
     
     '''
     for question in questions:
