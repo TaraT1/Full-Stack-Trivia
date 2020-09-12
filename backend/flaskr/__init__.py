@@ -45,10 +45,11 @@ def create_app(test_config=None):
     return response
 
   '''
-  @TODO: DONE
+  @TODO: DONE. Works, but missing imgs
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  #FormView #20 Categories
   #revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
   @app.route('/categories', methods=['GET'])
   def get_categories():
@@ -61,39 +62,44 @@ def create_app(test_config=None):
     if len(categories) == 0:
       abort(404) #resource not found
 
-    return jsonify({
-      "success": True,
-      "categories": formatted_categories,
-      "total_categories": len(categories)
-    })
+    else:
+      return jsonify({
+        "success": True,
+        "categories": formatted_categories,
+        "total_categories": len(categories)
+      })
   
+  #Get Questions by category; QuestionView #61
   #categories revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
-  #kbase Rahul Dev S Objects are not valid. At least it fucking works
+  #kbase Rahul Dev S Objects are not valid. 
   #QView: getByCategory url /categories/id/questions
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
-  def get_by_categories(category_id):
-    categories = Category.query.all()
-    questions = Question.query.filter(Category.id == category_id).all()
+  def get_by_category(category_id):
+    #categories = Category.query.all()
+    #questions = Question.query.filter(category_id == Category.id).all()
+    questions = Question.query.filter(Category.id == str(category_id)).all()
+
     #formatted_categories = {category.id: category.type for category in categories}
-
-
+    '''
     formatted_categories = {} #dictionary
     for category in categories:
       formatted_categories[category.id] = category.type
+    '''
 
-    if len(categories) == 0:
+    if len(questions) == 0:
       abort(404) #resource not found
   
-    return jsonify({
-      "success": True,
-      "questions": questions,
-      "total_questions": len(Question.query.all()),
-      "current_category": None,
-      "categories": formatted_categories
-    })
+    else:
+      return jsonify({
+        "success": True,
+        "questions": questions,
+        "total_questions": len(Question.query.all()),
+        "current_category": None
+        #"categories": formatted_categories
+      })
   
   '''
-  @TODO: Done
+  @TODO: Done, Works. No cat imgs
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -103,11 +109,11 @@ def create_app(test_config=None):
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
-  
   '''
 
-  @app.route('/questions')#*question?page=$ (QuestionView.js)
-  def get_questions():
+  #Get Questions. QuestionView #24 ; Works, but svg not found
+  @app.route('/questions', methods=['GET']) #Qview: /questions?page=${this.state.page}
+  def get_question():
     page = request.args.get('page', 1, type=int)
     start = (page-1) * 10
     end = start + 10
@@ -116,19 +122,20 @@ def create_app(test_config=None):
     if len(questions) == 0:
       abort(404) #resource not found 
 
-    #categories = {category.id: category.type for category in all_categories}
-    categories = Category.query.all()
-    formatted_categories = {} #dictionary
-    for category in categories:
-      formatted_categories[category.id] = category.type
-      
-    return jsonify({
-      "success": True,
-      "questions": questions[start:end],
-      "total_questions": len(questions),
-      "categories": formatted_categories,
-      "current_category": None
-    })
+    else:
+      #categories = {category.id: category.type for category in all_categories}
+      categories = Category.query.all()
+      formatted_categories = {} #dictionary
+      for category in categories:
+        formatted_categories[category.id] = category.type
+        
+      return jsonify({
+        "success": True,
+        "questions": questions[start:end],
+        "total_quesGtions": len(questions),
+        "categories": formatted_categories,
+        "current_category": None
+      })
   
   '''
   #@TODO: Done
@@ -138,39 +145,35 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
-  #**Delete question; check endpoint name in FE
+  #**Delete question; Qview 105;
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     question_id = request.json.get('id') #id from QuestionView.js
     
     try:
-      get_questions=Question.query.filter(Question.id==question_id).one_or_none()
+      get_questions=Question.query.filter(Question.id==str(question_id)).one_or_none()
 
 
-      if question is None:
+      if len(get_questions) == 0:
         abort(404) #resource not found
       
-      #db actions
-      db.session.delete(question_id)
-      #db.session.commit() #built into models
-      
-      selection = Question.query.order_by(Question.id).all()
-      current_questions = paginate_questions(request, selection)
+      else:
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
 
-      return jsonify({
-        "success": True,
-        "deleted": question_id,
-        
-      })
+        return jsonify({
+          "success": True,
+          "deleted": question_id,
+          "get_questions": get_questions
+        })
 
     except:
       abort(422) #unprocessable
-      #db.session.rollback()
 
   '''
   @TODO: Done 
   Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
+which will require the question and answer text, 
   category, and difficulty score.
 
   TEST: When you submit a question on the "Add" tab, 
@@ -178,24 +181,24 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-  @app.route('/questions', methods=['POST']) #CHECK
-  def create_question():
+  #***New Question: FormView #37
+  @app.route('/questions', methods=['POST'])  
+  def submit_question():
     #From form: question, answer, difficulty, category
     new_question = request.json.get('question')
     new_answer = request.json.get('answer')
-    category = request.json.get('category') #category for question, not new cat
     difficulty = request.json.get('difficulty')
+    category = request.json.get('category') #category for question, not new cat
     
-    # db.session.add()
     try:
       question = Question(question=new_question, answer=new_answer, category=category, difficuly=difficulty)
-      question.insert()
-
+      
       return jsonify({
+        "success": True,
         "question": new_question,
         "answer": new_answer,
-        "category": category,
-        "difficulty": difficulty
+        "difficulty": difficulty,
+        "category": category
       })
 
     except:
@@ -212,31 +215,37 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  #QuestionView #124, #79 submitSearch, search_term, url: /questions POST, 
+  #Submit Search ; QuestionView #124, #79 submitSearch, search_term, url: /questions POST, 
   # questions, total_questions, current_category
   #135 submitSearch: id, question, answer, category, difficulty
   @app.route('/questions/search', methods=['POST'])
-  def search_question():
-    search_term = request.json.get('searchTerm') #*?json or form
+  def submit_search(search_term):
+    search_term = request.json.get('search_term') #*?json or form
     #search_term = request.json.get('search_term', '')
     #query Question.question db for search term
-    questions = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
     #searched_question=Question.query.filter(Question.question.ilike('%{}%'.format(data['searchTerm']))).all()
     total_questions = len(Question.query.all())
     #current_category = Question.category #for each question?
     #current_category = {category.id: category.type for category in categories}
 
-    if questions is None:
-      abort(404) #resource not found
+    try:
+      questions = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
+
+      if len(questions) is None:
+        abort(404) #resource not found
+      
+      else:
+        #Works w new errors - testing for working from case insensitive search kbase
+        return jsonify({
+          "success": True,
+          "questions": questions,
+          "total_questions": total_questions,
+          "current_category": None
+        })
     
-    #Works w new errors - testing for working from case insensitive search kbase
-    return jsonify({
-      "success": True,
-      "questions": questions,
-      "total_questions": total_questions,
-      "current_category": None
-    })
-    
+    except:
+      abort(422)
+
     '''
     for question in questions:
       return jsonify({
@@ -262,7 +271,7 @@ def create_app(test_config=None):
   '''Testing@app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
     category_id=request.json.get('category_id')
-    #get_questions = {Question.query.filter(Question.category == category_id).all()}
+    #get_question = {Question.query.filter(Question.category == category_id).all()}
     
     #using kbase keep getting error 422 
     selection = Question.query.filter(Question.category == category_id).all()
@@ -299,15 +308,36 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
-  #@app.route('/questions', methods=['POST'])
-  #def questions_to_play():
+  #Quiz - questions to play; QuizView #50
+  @app.route('/quizzes', methods=['POST'])
+  def questions_to_play():
+    
+    return jsonify({
+      "question": '',
+      "previous_questions": '',
+      "current_question": '',
+      "quiz_category": '', 
+      "success": True,
+      "guess": ''
+    })
+
+
   #get random, unique questions w/i category based on parameters
+
 
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(400)
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 400,
+      "message": "bad request"
+    }), 400
+
   @app.errorhandler(404)
   def not_found(error):
     return jsonify({
@@ -323,6 +353,14 @@ def create_app(test_config=None):
       "error": 422,
       "message": "unprocessable"
     }), 422
+
+  @app.errorhandler(500)
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 500,
+      "message": "internal server error"
+    }), 500
 
   return app
 
