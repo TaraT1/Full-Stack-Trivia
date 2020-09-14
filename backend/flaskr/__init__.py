@@ -72,34 +72,40 @@ def create_app(test_config=None):
   #Get Questions by category; QuestionView #61
   #categories revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
   #kbase Rahul Dev S Objects are not valid. 
+  #Unable to return questions by category https://knowledge.udacity.com/questions/244811
   #QView: getByCategory url /categories/id/questions
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
-    #categories = Category.query.all()
     #questions = Question.query.filter(category_id == Category.id).all()
-    questions = Question.query.filter(Category.id == str(category_id)).all()
 
-    #formatted_categories = {category.id: category.type for category in categories}
     '''
+    #formatted_categories = {category.id: category.type for category in categories}
+    categories = Category.query.all()
     formatted_categories = {} #dictionary
     for category in categories:
       formatted_categories[category.id] = category.type
     '''
+    try:
+      #questions = Question.query.filter(Category.id == str(category_id)).all()
+      questions = Question.query.filter(Question.category==str(category_id)).all()
+      #Question.category instead of Category.id?
 
-    if len(questions) == 0:
-      abort(404) #resource not found
-  
-    else:
-      return jsonify({
-        "success": True,
-        "questions": questions,
-        "total_questions": len(Question.query.all()),
-        "current_category": None
-        #"categories": formatted_categories
-      })
-  
+      if len(questions) == 0:
+        abort(404) #resource not found
+    
+      else:
+        return jsonify({
+          "success": True,
+          "questions": questions,
+          "total_questions": len(Question.query.all()),
+          "current_category": None
+          })
+
+    except:
+      abort(422) 
+
   '''
-  @TODO: Done, Works. No cat imgs
+  @TODO: Done, Works.  
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
