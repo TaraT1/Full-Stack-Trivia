@@ -76,19 +76,18 @@ def create_app(test_config=None):
   #QView: getByCategory url /categories/id/questions
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
-    #questions = Question.query.filter(category_id == Category.id).all()
 
-    '''
-    #formatted_categories = {category.id: category.type for category in categories}
-    categories = Category.query.all()
-    formatted_categories = {} #dictionary
-    for category in categories:
-      formatted_categories[category.id] = category.type
-    '''
     try:
+      #??how get cat_id from UI/FE?
+      category_id = str(category_id)
       #questions = Question.query.filter(Category.id == str(category_id)).all()
-      questions = Question.query.filter(Question.category==str(category_id)).all()
+      questions = Question.query.filter(Question.category==category_id).all()
+      formatted_questions = [question.format() for question in questions]
       #Question.category instead of Category.id?
+      #Error 422 - Is questions query output object? 
+      # Soloved!!! => questions = [question.format() for question in Question.query.all()]
+
+      
 
       if len(questions) == 0:
         abort(404) #resource not found
@@ -96,9 +95,9 @@ def create_app(test_config=None):
       else:
         return jsonify({
           "success": True,
-          "questions": questions,
+          "questions": formatted_questions,
           "total_questions": len(Question.query.all()),
-          "current_category": None
+          "current_category": category_id 
           })
 
     except:
@@ -126,7 +125,7 @@ def create_app(test_config=None):
     questions = [question.format() for question in Question.query.all()]
 
     if len(questions) == 0:
-      abort(404) #resource not found 
+      abort(404) 
 
     else:
       #categories = {category.id: category.type for category in all_categories}
