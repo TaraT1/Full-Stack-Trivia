@@ -27,7 +27,7 @@ DELETE '/questions/<int:question_id>'
 
 
 
-POST '/questions'
+POST '/questions/add'
 - Creates new question
 - Arguments include question, answer, difficulty, and category
 - Returns

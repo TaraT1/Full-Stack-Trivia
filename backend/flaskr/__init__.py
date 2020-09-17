@@ -69,27 +69,7 @@ def create_app(test_config=None):
         "total_categories": len(categories)
       })
   
-  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
-  def get_by_category(category_id):
-
-    try:
-      questions = Question.query.filter(Question.category == str(category_id)).all()
-      formatted_questions = [question.format() for question in questions]
-
-      if len(questions) == 0:
-        abort(404) #resource not found
-    
-      else:
-        return jsonify({
-          "success": True,
-          "questions": formatted_questions,
-          "total_questions": len(Question.query.all()),
-          "current_category": category_id 
-          })
-
-    except:
-      abort(422) 
-
+ 
   '''
   @TODO: Done, Works.  
   Create an endpoint to handle GET requests for questions, 
@@ -163,7 +143,7 @@ def create_app(test_config=None):
       abort(422) #unprocessable
 
   '''
-  @TODO: Done - not working
+  @TODO: not working
   Create an endpoint to POST a new question, 
 which will require the question and answer text, 
   category, and difficulty score.
@@ -173,7 +153,7 @@ which will require the question and answer text,
   of the questions list in the "List" tab.  
   '''
 
-  #***New Question: FormView #37 ***Not working***
+  #***New Question: FormView #37 (updated endpoint) ***Not working***
   @app.route('/questions/add', methods=['POST'])  
   def submit_question():
     #From form: question, answer, difficulty, category
@@ -204,11 +184,9 @@ which will require the question and answer text,
       abort(422)
 
     '''
-    curl -X POST http://127.0.0.1:5000/questions -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": "3", "category": "3"}'
-    
     ref: https://knowledge.udacity.com/questions/238728
 
-    curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": 3}'
+    curl http://127.0.0.1:5000/questions/add -X POST -H "Content-Type:application/json" -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": "3"}'
 
     '''
 
@@ -222,9 +200,10 @@ which will require the question and answer text,
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  #Submit Search ; QuestionView #124, #79 submitSearch, search_term, url: /questions POST, 
+  #Submit Search ; QuestionView #124, #79 submitSearch (updated url), search_term, url: /questions POST, 
   # questions, total_questions, current_category
   #135 submitSearch: id, question, answer, category, difficulty
+  #@app.route('/questions/search', methods=['POST'])
   @app.route('/questions/search', methods=['POST'])
   def submit_search(search_term):
     search_term = request.json.get('search_term') #*?json or form
@@ -268,13 +247,34 @@ which will require the question and answer text,
 
 
   '''
-  @TODO: *CHECK; c.f. questions end point
+  @TODO: *works; c.f. questions end point
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+ @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_by_category(category_id):
+
+    try:
+      questions = Question.query.filter(Question.category == str(category_id)).all()
+      formatted_questions = [question.format() for question in questions]
+
+      if len(questions) == 0:
+        abort(404) #resource not found
+    
+      else:
+        return jsonify({
+          "success": True,
+          "questions": formatted_questions,
+          "total_questions": len(Question.query.all()),
+          "current_category": category_id 
+          })
+
+    except:
+      abort(422) 
+
   '''Testing@app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
     category_id=request.json.get('category_id')
