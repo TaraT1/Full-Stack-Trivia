@@ -69,25 +69,12 @@ def create_app(test_config=None):
         "total_categories": len(categories)
       })
   
-  #Get Questions by category; QuestionView #61
-  #categories revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
-  #kbase Rahul Dev S Objects are not valid. 
-  #Unable to return questions by category https://knowledge.udacity.com/questions/244811
-  #QView: getByCategory url /categories/id/questions
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
 
     try:
-      #??how get cat_id from UI/FE?
-      category_id = str(category_id)
-      #questions = Question.query.filter(Category.id == str(category_id)).all()
-      questions = Question.query.filter(Question.category==category_id).all()
+      questions = Question.query.filter(Question.category == str(category_id)).all()
       formatted_questions = [question.format() for question in questions]
-      #Question.category instead of Category.id?
-      #Error 422 - Is questions query output object? 
-      # Soloved!!! => questions = [question.format() for question in Question.query.all()]
-
-      
 
       if len(questions) == 0:
         abort(404) #resource not found
@@ -176,7 +163,7 @@ def create_app(test_config=None):
       abort(422) #unprocessable
 
   '''
-  @TODO: Done 
+  @TODO: Done - not working
   Create an endpoint to POST a new question, 
 which will require the question and answer text, 
   category, and difficulty score.
@@ -186,29 +173,44 @@ which will require the question and answer text,
   of the questions list in the "List" tab.  
   '''
 
-  #***New Question: FormView #37
-  @app.route('/questions', methods=['POST'])  
+  #***New Question: FormView #37 ***Not working***
+  @app.route('/questions/add', methods=['POST'])  
   def submit_question():
     #From form: question, answer, difficulty, category
-    new_question = request.json.get('question')
-    new_answer = request.json.get('answer')
-    difficulty = request.json.get('difficulty')
-    category = request.json.get('category') #category for question, not new cat
+    #body, etc. based on books example 
+
+    body=request.get_json() 
+
+    new_question=body.get('question', None)
+    new_answer=body.get('answer', None)
+    new_difficulty=body.get('difficulty', None)
+    new_category=body.get('category', None) 
+
+    #Note: category type or id. id is int, type is string
     
     try:
-      question = Question(question=new_question, answer=new_answer, category=category, difficuly=difficulty)
-      
+      add_question = Question(question=new_question, answer=new_answer, category=new_category, difficuly=new_difficulty)
+      add_question.insert() 
+
       return jsonify({
         "success": True,
         "question": new_question,
         "answer": new_answer,
-        "difficulty": difficulty,
-        "category": category
+        "difficulty": new_difficulty,
+        "category": new_category
       })
 
     except:
       abort(422)
 
+    '''
+    curl -X POST http://127.0.0.1:5000/questions -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": "3", "category": "3"}'
+    
+    ref: https://knowledge.udacity.com/questions/238728
+
+    curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": 3}'
+
+    '''
 
   '''
   @TODO: *CHECK
