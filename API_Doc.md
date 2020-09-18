@@ -37,5 +37,9 @@ POST '/questions/search'
 - Request argument: search term
 - Returns: list of questions, each with answer, single key, and category.
 
+GET '/categories/<int:category_id>/questions'
+- Returns questions based on category
+- Request Arguments: <int:category_id>
+
 POST '/quizzes'
 - 

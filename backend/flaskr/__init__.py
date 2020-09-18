@@ -62,14 +62,13 @@ def create_app(test_config=None):
     if len(categories) == 0:
       abort(404) #resource not found
 
-    else:
-      return jsonify({
-        "success": True,
-        "categories": formatted_categories,
-        "total_categories": len(categories)
-      })
-  
- 
+    return jsonify({
+      "success": True,
+      "categories": formatted_categories,
+      "total_categories": len(categories)
+    })
+
+
   '''
   @TODO: Done, Works.  
   Create an endpoint to handle GET requests for questions, 
@@ -83,7 +82,7 @@ def create_app(test_config=None):
   Clicking on the page numbers should update the questions. 
   '''
 
-  #Get Questions. QuestionView #24 ; Works, but svg not found
+  #Get Questions. QuestionView #24 ; Works.
   @app.route('/questions', methods=['GET']) #Qview: /questions?page=${this.state.page}
   def get_question():
     page = request.args.get('page', 1, type=int)
@@ -110,7 +109,7 @@ def create_app(test_config=None):
       })
   
   '''
-  #@TODO: Done
+  #@TODO: Done; Works?
   Create an endpoint to DELETE question using a question ID. 
 
   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -144,8 +143,7 @@ def create_app(test_config=None):
 
   '''
   @TODO: not working
-  Create an endpoint to POST a new question, 
-which will require the question and answer text, 
+  Create an endpoint to POST a new question, which will require the question and answer text, 
   category, and difficulty score.
 
   TEST: When you submit a question on the "Add" tab, 
@@ -160,11 +158,19 @@ which will require the question and answer text,
     #body, etc. based on books example 
 
     body=request.get_json() 
+    
+    new_question=body.get('question')
+    new_answer=body.get('answer')
+    new_difficulty=body.get('difficulty')
+    new_category=body.get('category') 
+ 
 
+    '''
     new_question=body.get('question', None)
     new_answer=body.get('answer', None)
     new_difficulty=body.get('difficulty', None)
     new_category=body.get('category', None) 
+    '''
 
     #Note: category type or id. id is int, type is string
     
@@ -191,7 +197,7 @@ which will require the question and answer text,
     '''
 
   '''
-  @TODO: *CHECK
+  @TODO: *Not working
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -207,12 +213,8 @@ which will require the question and answer text,
   @app.route('/questions/search', methods=['POST'])
   def submit_search(search_term):
     search_term = request.json.get('search_term') #*?json or form
-    #search_term = request.json.get('search_term', '')
     #query Question.question db for search term
-    #searched_question=Question.query.filter(Question.question.ilike('%{}%'.format(data['searchTerm']))).all()
     total_questions = len(Question.query.all())
-    #current_category = Question.category #for each question?
-    #current_category = {category.id: category.type for category in categories}
 
     try:
       questions = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
@@ -232,19 +234,6 @@ which will require the question and answer text,
     except:
       abort(422)
 
-    '''
-    for question in questions:
-      return jsonify({
-        "success": True,
-        "questions": questions,
-        "id": Question(id),
-        "question": Question(question),
-        "answer": Question(answer),
-        "category": Question(category),
-        "difficulty": Question(difficulty)
-      })
-    '''
-
 
   '''
   @TODO: *works; c.f. questions end point
@@ -254,7 +243,7 @@ which will require the question and answer text,
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
- @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
 
     try:
@@ -274,35 +263,6 @@ which will require the question and answer text,
 
     except:
       abort(422) 
-
-  '''Testing@app.route('/categories/<int:category_id>/questions', methods=['GET'])
-  def get_by_category(category_id):
-    category_id=request.json.get('category_id')
-    #get_question = {Question.query.filter(Question.category == category_id).all()}
-    
-    #using kbase keep getting error 422 
-    selection = Question.query.filter(Question.category == category_id).all()
-    #formatted_questions = {question.format() for question in selection}
-
-    current_questions = paginate_questions(request, selection)
-    
-
-    if len(current_questions) is None:
-      abort(404) #resource not found
-
-    return jsonify({
-      "success": True,
-      "questions": current_questions,
-      "total_questions": len(selection),
-      "current_category": category_id
-
-    })
-
-  '''
-
-
-
-
 
   '''
   @TODO: 
