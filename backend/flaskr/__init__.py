@@ -218,7 +218,7 @@ def create_app(test_config=None):
       })
     
     except Exception as e:
-      print('Exception is >> ',e)
+      print("Exception is: ",e)
       abort(422)
 
     '''
@@ -297,7 +297,7 @@ def create_app(test_config=None):
     }), 400
 
   @app.errorhandler(404)
-  def not_found(error):
+  def resource_not_found(error):
     return jsonify({
       "success": False, 
       "error": 404,
