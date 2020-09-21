@@ -7,7 +7,6 @@ import random
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
-
 '''
 #Bookshelf approach from course for pagination
 def paginate_questions(request, selection):
@@ -20,8 +19,7 @@ def paginate_questions(request, selection):
   current_questions = questions[start:end]
 
   return current_questions
-  '''
-
+'''
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -142,7 +140,7 @@ def create_app(test_config=None):
       abort(422) #unprocessable
 
   '''
-  @TODO: not working
+  @TODO: working
   Create an endpoint to POST a new question, which will require the question and answer text, 
   category, and difficulty score.
 
@@ -151,7 +149,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-  #***New Question: FormView #37 (updated endpoint) ***Not working***
+  #***New Question: FormView #37 (updated endpoint) ***working***
   @app.route('/questions/add', methods=['POST'])  
   def submit_question():
     #From form: question, answer, difficulty, category
@@ -163,19 +161,11 @@ def create_app(test_config=None):
     new_answer=body.get('answer')
     new_difficulty=body.get('difficulty')
     new_category=body.get('category') 
- 
-
-    '''
-    new_question=body.get('question', None)
-    new_answer=body.get('answer', None)
-    new_difficulty=body.get('difficulty', None)
-    new_category=body.get('category', None) 
-    '''
 
     #Note: category type or id. id is int, type is string
     
     try:
-      add_question = Question(question=new_question, answer=new_answer, category=new_category, difficuly=new_difficulty)
+      add_question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
       add_question.insert() 
 
       return jsonify({
@@ -186,18 +176,19 @@ def create_app(test_config=None):
         "category": new_category
       })
 
-    except:
+    except Exception as e:
+      print('Exception is >> ',e)
       abort(422)
 
     '''
     ref: https://knowledge.udacity.com/questions/238728
 
-    curl http://127.0.0.1:5000/questions/add -X POST -H "Content-Type:application/json" -d '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": "3"}'
+    curl --location --request POST 'http://127.0.0.1:5000/questions/add' --header 'Content-Type: application/json' --data-raw '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": "3"}' 
 
     '''
 
   '''
-  @TODO: *Not working
+  @TODO: *Working on backend!!!
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -209,31 +200,31 @@ def create_app(test_config=None):
   #Submit Search ; QuestionView #124, #79 submitSearch (updated url), search_term, url: /questions POST, 
   # questions, total_questions, current_category
   #135 submitSearch: id, question, answer, category, difficulty
-  #@app.route('/questions/search', methods=['POST'])
   @app.route('/questions/search', methods=['POST'])
-  def submit_search(search_term):
-    search_term = request.json.get('search_term') #*?json or form
-    #query Question.question db for search term
-    total_questions = len(Question.query.all())
-
+  def submit_search():
     try:
-      questions = Question.query.filter(Question.question.ilike('%{}%'.format('search_term'))).all()
+      search_term = request.json.get('search_term','') 
+      questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
+      formatted_questions = [question.format() for question in questions]
 
-      if len(questions) is None:
+      if len(questions) == 0:
         abort(404) #resource not found
-      
-      else:
-        #Works w new errors - testing for working from case insensitive search kbase
-        return jsonify({
-          "success": True,
-          "questions": questions,
-          "total_questions": total_questions,
-          "current_category": None
-        })
+
+      return jsonify({
+        "success": True,
+        "questions": formatted_questions,
+        "total_questions": len(questions),
+        "current_category": None 
+      })
     
-    except:
+    except Exception as e:
+      print('Exception is >> ',e)
       abort(422)
 
+    '''
+    curl --location --request POST 'http://127.0.0.1:5000/questions/search' --header 'Content-Type: application/json' --data-raw '{"search_term": "title"}' 
+    curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search #https://knowledge.udacity.com/questions/240733
+    '''
 
   '''
   @TODO: *works; c.f. questions end point
