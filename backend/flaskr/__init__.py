@@ -117,30 +117,30 @@ def create_app(test_config=None):
   #**Delete question; Qview 105;
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
-    question_id = request.json.get('id') #id from QuestionView.js
+    #question_id = request.json.get('id') #id from QuestionView.js
     
     try:
-      get_questions=Question.query.filter(Question.id==str(question_id)).one_or_none()
+      question=Question.query.filter(Question.id==question_id).one_or_none()
 
-
-      if len(get_questions) == 0:
+      if question is None:
         abort(404) #resource not found
       
-      else:
-        selection = Question.query.order_by(Question.id).all()
-        current_questions = paginate_questions(request, selection)
+      question.delete() 
+      selection = Question.query.all()
+      #current_questions = paginate_questions(request, selection)
 
-        return jsonify({
-          "success": True,
-          "deleted": question_id,
-          "get_questions": get_questions
-        })
+      return jsonify({
+        "success": True,
+        "deleted": question_id,
+        "total_questions": len(selection) 
+      })
 
-    except:
+    except Exception as e:
+      print("Exception: ",e)
       abort(422) #unprocessable
 
   '''
-  @TODO: working
+  @TODO: works
   Create an endpoint to POST a new question, which will require the question and answer text, 
   category, and difficulty score.
 
@@ -188,7 +188,7 @@ def create_app(test_config=None):
     '''
 
   '''
-  @TODO: *Working on backend!!!
+  @TODO: *Working on backend & frontend!!!
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -203,7 +203,7 @@ def create_app(test_config=None):
   @app.route('/questions/search', methods=['POST'])
   def submit_search():
     try:
-      search_term = request.json.get('search_term','') 
+      search_term = request.json.get('searchTerm',None) 
       questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
       formatted_questions = [question.format() for question in questions]
 
@@ -289,7 +289,7 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   @app.errorhandler(400)
-  def not_found(error):
+  def resource_not_found(error):
     return jsonify({
       "success": False, 
       "error": 400,
