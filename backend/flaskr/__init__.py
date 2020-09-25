@@ -43,7 +43,7 @@ def create_app(test_config=None):
     return response
 
   '''
-  @TODO: DONE. Works, but missing imgs
+  @TODO: DONE. Works, imgs working 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
@@ -101,7 +101,7 @@ def create_app(test_config=None):
       return jsonify({
         "success": True,
         "questions": questions[start:end],
-        "total_quesGtions": len(questions),
+        "total_questions": len(questions),
         "categories": formatted_categories,
         "current_category": None
       })
@@ -269,7 +269,17 @@ def create_app(test_config=None):
   #Quiz - questions to play; QuizView #50
   @app.route('/quizzes', methods=['POST'])
   def questions_to_play():
-    #question
+    #Select category, question
+    quiz_category = request.json.get('quiz_category', None) 
+    previous_questions = request.json.get('previous_questions', None) 
+    #question id, exclude previous_questions
+
+    questions_to_play = Question.query.filter(Question.category==str(quiz_category)).all()
+
+    
+    #previous_questions, current_question, get_next_question
+
+    
 
     #previous_questions
     
@@ -292,7 +302,7 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   @app.errorhandler(400)
-  def resource_not_found(error):
+  def (error):
     return jsonify({
       "success": False, 
       "error": 400,
