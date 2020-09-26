@@ -272,17 +272,24 @@ def create_app(test_config=None):
     #Select category, question
     quiz_category = request.json.get('quiz_category', None) 
     previous_questions = request.json.get('previous_questions', None) 
-    #question id, exclude previous_questions
+    #question id, exclude previous_questions, generate random order
+    #questions = query w notin_(previous_questions)
+    #questions_to_play = random(questions)
 
-    questions_to_play = Question.query.filter(Question.category==str(quiz_category)).all()
+    if quiz_category == 0:
+      questions_to_play = Question.query.filter(notin_(previous_questions).all()
+      #questions to play = random(questions) 
 
+    else:
+
+      questions_to_play = Question.query.filter(Question.category==str(quiz_category)).all()  
+      #ADD (notin_(previous_questions).all()
+      #randomize: select.order_by(func.random()) 
+
+      #FE needs question (Sending quiz_cat & prev_qs)
     
-    #previous_questions, current_question, get_next_question
-
-    
-
-    #previous_questions
-    
+      #previous_questions, current_question, get_next_question
+      
     return jsonify({
       "question": '',
       "previous_questions": '',
@@ -291,9 +298,6 @@ def create_app(test_config=None):
       "success": True,
       "guess": ''
     })
-
-
-  #get random, unique questions w/i category based on parameters
 
 
   '''
