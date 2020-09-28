@@ -276,29 +276,34 @@ def create_app(test_config=None):
     #questions = query w notin_(previous_questions)
     #questions_to_play = random(questions)
 
-    if quiz_category == 0:
-      questions_to_play = Question.query.filter(notin_(previous_questions).all()
-      #questions to play = random(questions) 
+    try:
+      #Get questions if category is not selected that have not been played
+      if quiz_category == 0:
+        get_questions = Question.query.filter(notin_(previous_questions)).all()
 
-    else:
+      #Get questions with selected category that have not been played
+      else:
+        #get_questions = Question.query.filter(Question.category==str(quiz_category), Question.notin_(previous_questions)).all()  
+        get_questions = Question.query.all()
+        
+      questions_to_play = [question.format() for question in get_questions] 
 
-      questions_to_play = Question.query.filter(Question.category==str(quiz_category)).all()  
-      #ADD (notin_(previous_questions).all()
-      #randomize: select.order_by(func.random()) 
+      #randomize questions - select.order_by(func.random()) 
+      #questions = random.shuffle(questions_to_play)
 
-      #FE needs question (Sending quiz_cat & prev_qs)
-    
       #previous_questions, current_question, get_next_question
-      
-    return jsonify({
-      "question": '',
-      "previous_questions": '',
-      "current_question": '',
-      "quiz_category": '', 
-      "success": True,
-      "guess": ''
-    })
+        
+      return jsonify({
+        "question": 'questions_to_play',
+        "previous_questions": '',
+        "current_question": '',
+        "quiz_category": '', 
+        "success": True,
+        "guess": ''
+      })      
 
+    except:
+      abort(422)
 
   '''
   @TODO: 
@@ -306,7 +311,7 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   @app.errorhandler(400)
-  def (error):
+  def bad_request(error):
     return jsonify({
       "success": False, 
       "error": 400,
