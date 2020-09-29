@@ -227,7 +227,7 @@ def create_app(test_config=None):
     '''
 
   '''
-  @TODO: *works; c.f. questions end point
+  @TODO: DONE *works; c.f. questions end point
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
@@ -266,41 +266,38 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
-  '''
   #Quiz - questions to play; QuizView #50
   @app.route('/quizzes', methods=['POST'])
   def questions_to_play():
-    #Select category, question
-    quiz_category = request.json.get('quiz_category', None) 
-    previous_questions = request.json.get('previous_questions', []) 
+    #Select category, question - using https://knowledge.udacity.com/questions/113018  (FE not getting cat)
+    data = request.get_json()
+    
+    category_id = int(data['quiz_category']['id']) 
+    category = Category.query.get(category_id)
+    previous_questions = data['previous_questions'] 
 
     try:
-      #Get questions if category is not selected that have not been played; QuizView #105
-      if quiz_category['id'] == 0:
+      #Get questions if category is not selected 2ADD: that have not been played; QuizView #105
+      if category == None: 
         #get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
         get_questions = Question.query.all()
 
-      #Get questions with selected category that have not been played
+      #Get questions with selected category 2ADD: that have not been played
       else:
-        get_questions = Question.query.filter(Question.category==quiz_category['id']).all() #filter(Question.id.notin_(previous_questions))).all() 
+        #get_questions = Question.query.filter(Question.category==category_id).all() #filter(Question.id.notin_(previous_questions))).all() 
+        get_questions = (Question.query.filter(Question.category==category_id).filter(Question.id.notin_(previous_questions)).all()) #kbase ref 113018
 
-        
         questions = [question.format() for question in get_questions] 
+        #question = random.shuffle(questions) #null function return
 
-        #randomize questions - select.order_by(func.random()) 
-        #questions = random.shuffle(questions_to_play)
-
-        #previous_questions, current_question, get_next_question
-          
         return jsonify({
           "question": questions,
           "success": True
         })      
 
     except Exception as e:
-      print("Exception >> ",e )
+      print("Exception >> ", e )
       abort(422)
-  '''
 
 
   '''
