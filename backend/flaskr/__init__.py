@@ -266,44 +266,42 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  '''
   #Quiz - questions to play; QuizView #50
   @app.route('/quizzes', methods=['POST'])
   def questions_to_play():
     #Select category, question
     quiz_category = request.json.get('quiz_category', None) 
-    previous_questions = request.json.get('previous_questions', None) 
-    #question id, exclude previous_questions, generate random order
-    #questions = query w notin_(previous_questions)
-    #questions_to_play = random(questions)
+    previous_questions = request.json.get('previous_questions', []) 
 
     try:
-      #Get questions if category is not selected that have not been played
-      if quiz_category == 0:
-        get_questions = Question.query.filter(notin_(previous_questions)).all()
+      #Get questions if category is not selected that have not been played; QuizView #105
+      if quiz_category['id'] == 0:
+        #get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
+        get_questions = Question.query.all()
 
       #Get questions with selected category that have not been played
       else:
-        #get_questions = Question.query.filter(Question.category==str(quiz_category), Question.notin_(previous_questions)).all()  
-        get_questions = Question.query.all()
+        get_questions = Question.query.filter(Question.category==quiz_category['id']).all() #filter(Question.id.notin_(previous_questions))).all() 
+
         
-      questions_to_play = [question.format() for question in get_questions] 
+        questions = [question.format() for question in get_questions] 
 
-      #randomize questions - select.order_by(func.random()) 
-      #questions = random.shuffle(questions_to_play)
+        #randomize questions - select.order_by(func.random()) 
+        #questions = random.shuffle(questions_to_play)
 
-      #previous_questions, current_question, get_next_question
-        
-      return jsonify({
-        "question": 'questions_to_play',
-        "previous_questions": '',
-        "current_question": '',
-        "quiz_category": '', 
-        "success": True,
-        "guess": ''
-      })      
+        #previous_questions, current_question, get_next_question
+          
+        return jsonify({
+          "question": questions,
+          "success": True
+        })      
 
-    except:
+    except Exception as e:
+      print("Exception >> ",e )
       abort(422)
+  '''
+
 
   '''
   @TODO: 
