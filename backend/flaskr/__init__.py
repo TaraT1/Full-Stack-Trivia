@@ -277,21 +277,27 @@ def create_app(test_config=None):
     previous_questions = data['previous_questions'] 
 
     try:
-      #Get questions if category is not selected 2ADD: that have not been played; QuizView #105
-      if category == None: 
+      #Get questions if category is not selected that have not been played; QuizView #105
+      if category_id == 0: 
         #get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
         get_questions = Question.query.all()
 
-      #Get questions with selected category 2ADD: that have not been played
+      #Get questions with selected category that have not been played
       else:
         #get_questions = Question.query.filter(Question.category==category_id).all() #filter(Question.id.notin_(previous_questions))).all() 
         get_questions = (Question.query.filter(Question.category==category_id).filter(Question.id.notin_(previous_questions)).all()) #kbase ref 113018
 
         questions = [question.format() for question in get_questions] 
         #question = random.shuffle(questions) #null function return
+        
+        if (len(questions) == 0):
+          ques = None
+        else:
+          ques = questions[random.randrange(0, len(questions))]
+        
 
         return jsonify({
-          "question": questions,
+          "question": ques,
           "success": True
         })      
 
