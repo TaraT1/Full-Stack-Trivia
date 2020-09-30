@@ -256,7 +256,7 @@ def create_app(test_config=None):
       abort(422) 
 
   '''
-  @TODO: 
+  @TODO: DONE, working
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -278,36 +278,35 @@ def create_app(test_config=None):
 
     try:
       #Get questions if category is not selected that have not been played; QuizView #105
-      if category_id == 0: 
-        #get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
-        get_questions = Question.query.all()
+      if category == None: 
+        get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
+        #get_questions = Question.query.all()
 
       #Get questions with selected category that have not been played
       else:
-        #get_questions = Question.query.filter(Question.category==category_id).all() #filter(Question.id.notin_(previous_questions))).all() 
-        get_questions = (Question.query.filter(Question.category==category_id).filter(Question.id.notin_(previous_questions)).all()) #kbase ref 113018
+        get_questions = (Question.query.filter(Question.category==category_id).filter(Question.id.notin_(previous_questions)).all()) 
+        #kbase ref 113018
 
-        questions = [question.format() for question in get_questions] 
-        #question = random.shuffle(questions) #null function return
-        
-        if (len(questions) == 0):
-          ques = None
-        else:
-          ques = questions[random.randrange(0, len(questions))]
-        
+      questions = [question.format() for question in get_questions] 
+      #question = random.shuffle(questions) #null function return
+      
+      if (len(questions) == 0):
+        ques = None
+      else:
+        ques = questions[random.randrange(0, len(questions))]
+      
 
-        return jsonify({
-          "question": ques,
-          "success": True
-        })      
+      return jsonify({
+        "question": ques,
+        "success": True
+      })      
 
     except Exception as e:
       print("Exception >> ", e )
       abort(422)
 
-
   '''
-  @TODO: 
+  @TODO: DONE
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
