@@ -26,7 +26,7 @@ def create_app(test_config=None):
   setup_db(app)
   
   '''
-  @TODO: Done Set up CORS. Allow '*' for origins. 
+  @TODO: DONE Set up CORS. Allow '*' for origins. 
   @TODO: Delete the sample route after completing the TODOs
   '''
   #CORS (Cross Origin Resources Sharing)
@@ -140,7 +140,7 @@ def create_app(test_config=None):
       abort(422) #unprocessable
 
   '''
-  @TODO: works
+  @TODO: DONE works
   Create an endpoint to POST a new question, which will require the question and answer text, 
   category, and difficulty score.
 
@@ -155,7 +155,7 @@ def create_app(test_config=None):
     #From form: question, answer, difficulty, category
     #body, etc. based on books example 
 
-    body=request.get_json() 
+    body=request.get_json()#replace body w data for consistency? 
     
     new_question=body.get('question')
     new_answer=body.get('answer')
@@ -165,7 +165,13 @@ def create_app(test_config=None):
     #Note: category type or id. id is int, type is string
     
     try:
-      add_question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+      add_question = Question(
+        question=new_question, 
+        answer=new_answer, 
+        category=new_category, 
+        difficulty=new_difficulty
+        )
+
       add_question.insert() 
 
       return jsonify({
@@ -188,7 +194,7 @@ def create_app(test_config=None):
     '''
 
   '''
-  @TODO: *Working on backend & frontend!!!
+  @TODO: DONE *Working on backend & frontend!!!
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -221,10 +227,8 @@ def create_app(test_config=None):
       print("Exception is: ",e)
       abort(422)
 
-    '''
-    curl --location --request POST 'http://127.0.0.1:5000/questions/search' --header 'Content-Type: application/json' --data-raw '{"search_term": "title"}' 
-    curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search #https://knowledge.udacity.com/questions/240733
-    '''
+    #curl --location --request POST 'http://127.0.0.1:5000/questions/search' --header 'Content-Type: application/json' --data-raw '{"search_term": "title"}' 
+    #curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search #https://knowledge.udacity.com/questions/240733
 
   '''
   @TODO: DONE *works; c.f. questions end point
