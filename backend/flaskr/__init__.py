@@ -80,6 +80,7 @@ def create_app(test_config=None):
   Clicking on the page numbers should update the questions. 
   '''
 
+
   #Get Questions. QuestionView #24 ; Works.
   @app.route('/questions', methods=['GET']) #Qview: /questions?page=${this.state.page}
   def get_question():
@@ -155,12 +156,12 @@ def create_app(test_config=None):
     #From form: question, answer, difficulty, category
     #body, etc. based on books example 
 
-    body=request.get_json()#replace body w data for consistency? 
+    data=request.get_json()#replace body w data for consistency 
     
-    new_question=body.get('question')
-    new_answer=body.get('answer')
-    new_difficulty=body.get('difficulty')
-    new_category=body.get('category') 
+    new_question=data.get('question')
+    new_answer=data.get('answer')
+    new_difficulty=data.get('difficulty')
+    new_category=data.get('category') 
 
     #Note: category type or id. id is int, type is string
     
@@ -206,9 +207,27 @@ def create_app(test_config=None):
   #Submit Search ; QuestionView #124, #79 submitSearch (updated url), search_term, url: /questions POST, 
   # questions, total_questions, current_category
   #135 submitSearch: id, question, answer, category, difficulty
+  #try/except block throwing 422 when should be 404
   @app.route('/questions/search', methods=['POST'])
   def submit_search():
-    try:
+    search_term = request.json.get('searchTerm',None) 
+    questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
+    formatted_questions = [question.format() for question in questions]
+
+    if len(questions) == 0:
+      abort(404)
+
+    return jsonify({
+      "success": True,
+      "questions": formatted_questions,
+      "total_questions": len(questions),
+      "current_category": None 
+    })
+  
+    
+  '''
+  def submit_search():
+    try:#throwing 422
       search_term = request.json.get('searchTerm',None) 
       questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
       formatted_questions = [question.format() for question in questions]
@@ -216,19 +235,22 @@ def create_app(test_config=None):
       if len(questions) == 0:
         abort(404) #resource not found
 
-      return jsonify({
-        "success": True,
-        "questions": formatted_questions,
-        "total_questions": len(questions),
-        "current_category": None 
-      })
+        return jsonify({
+          "success": True,
+          "questions": formatted_questions,
+          "total_questions": len(questions),
+          "current_category": None 
+        })
     
-    except Exception as e:
-      print("Exception is: ",e)
-      abort(422)
+      #abort(404) #resource not found
+    
+    #except Exception as e:
+      #print("Exception is: ", e)
+      #abort(422)
 
     #curl --location --request POST 'http://127.0.0.1:5000/questions/search' --header 'Content-Type: application/json' --data-raw '{"search_term": "title"}' 
     #curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search #https://knowledge.udacity.com/questions/240733
+  '''
 
   '''
   @TODO: DONE *works; c.f. questions end point
@@ -241,24 +263,42 @@ def create_app(test_config=None):
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
 
-    try:
-      questions = Question.query.filter(Question.category == str(category_id)).all()
-      formatted_questions = [question.format() for question in questions]
+    questions = Question.query.filter(Question.category == str(category_id)).all()
+    formatted_questions = [question.format() for question in questions]
 
-      if len(questions) == 0:
-        abort(404) #resource not found
-    
-      else:
-        return jsonify({
-          "success": True,
-          "questions": formatted_questions,
-          "total_questions": len(Question.query.all()),
-          "current_category": category_id 
-          })
+    if len(questions) == 0:
+      abort(404) #resource not found
+  
+    else:
+      return jsonify({
+        "success": True,
+        "questions": formatted_questions,
+        "total_questions": len(Question.query.all()),
+        "current_category": category_id 
+        })
 
-    except:
-      abort(422) 
 
+#  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+#    def get_by_category(category_id):
+#
+#      try:
+#        questions = Question.query.filter(Question.category == str(category_id)).all()
+#        formatted_questions = [question.format() for question in questions]
+#
+#        if len(questions) == 0:
+#          abort(404) #resource not found
+#      
+#        else:
+#          return jsonify({
+#            "success": True,
+#            "questions": formatted_questions,
+#            "total_questions": len(Question.query.all()),
+#            "current_category": category_id 
+#            })
+#
+#      except:
+#        abort(422) 
+#
   '''
   @TODO: DONE, working
   Create a POST endpoint to get questions to play the quiz. 
@@ -284,7 +324,6 @@ def create_app(test_config=None):
       #Get questions if category is not selected that have not been played; QuizView #105
       if category == None: 
         get_questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
-        #get_questions = Question.query.all()
 
       #Get questions with selected category that have not been played
       else:
@@ -292,22 +331,22 @@ def create_app(test_config=None):
         #kbase ref 113018
 
       questions = [question.format() for question in get_questions] 
-      #question = random.shuffle(questions) #null function return
       
+      #Randomize order of questions, deliver 1 at a time
       if (len(questions) == 0):
-        ques = None
+        quest= None
       else:
-        ques = questions[random.randrange(0, len(questions))]
+        quest = questions[random.randrange(0, len(questions))]
       
 
       return jsonify({
-        "question": ques,
+        "question": quest,
         "success": True
       })      
 
     except Exception as e:
       print("Exception >> ", e )
-      abort(422)
+      abort(422)#check if correct error
 
   '''
   @TODO: DONE
