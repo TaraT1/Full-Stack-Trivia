@@ -29,13 +29,11 @@ def create_app(test_config=None):
   @TODO: DONE Set up CORS. Allow '*' for origins. 
   @TODO: Delete the sample route after completing the TODOs
   '''
-  #CORS (Cross Origin Resources Sharing)
   cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''
   @TODO: DONE Use the after_request decorator to set Access-Control-Allow
   '''
-  #CORS Headers (Ref: 3.4)
   @app.after_request
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, true')
@@ -47,8 +45,7 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-  #FormView #20 Categories
-  #revised using Himanshu D From <https://knowledge.udacity.com/questions/280959#284132>
+  #Get categories. FE: FormView #20 Categories
   @app.route('/categories', methods=['GET'])
   def get_categories():
     categories = Category.query.all()
@@ -81,7 +78,7 @@ def create_app(test_config=None):
   '''
 
 
-  #Get Questions. QuestionView #24 ; Works.
+  #Get Questions. FE: QuestionView #24
   @app.route('/questions', methods=['GET']) #Qview: /questions?page=${this.state.page}
   def get_question():
     page = request.args.get('page', 1, type=int)
@@ -115,7 +112,7 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
-  #**Delete question; Qview 105;
+  #Delete question; FE: Qview 105
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     #question_id = request.json.get('id') #id from QuestionView.js
@@ -150,7 +147,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-  #***New Question: FormView #37 (updated endpoint) ***working***
+  #Add new question; FE: FormView #37. ToDo: invalidate if info missing
   @app.route('/questions/add', methods=['POST'])  
   def submit_question():
     #From form: question, answer, difficulty, category
@@ -187,13 +184,6 @@ def create_app(test_config=None):
       print('Exception is >> ',e)
       abort(422)
 
-    '''
-    ref: https://knowledge.udacity.com/questions/238728
-
-    curl --location --request POST 'http://127.0.0.1:5000/questions/add' --header 'Content-Type: application/json' --data-raw '{"question": "QuesCurlJson", "answer": "AnsCurlJson", "difficulty": 3, "category": "3"}' 
-
-    '''
-
   '''
   @TODO: DONE *Working on backend & frontend!!!
   Create a POST endpoint to get questions based on a search term. 
@@ -204,10 +194,7 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  #Submit Search ; QuestionView #124, #79 submitSearch (updated url), search_term, url: /questions POST, 
-  # questions, total_questions, current_category
-  #135 submitSearch: id, question, answer, category, difficulty
-  #try/except block throwing 422 when should be 404
+  #Search questions
   @app.route('/questions/search', methods=['POST'])
   def submit_search():
     search_term = request.json.get('searchTerm',None) 
@@ -224,34 +211,6 @@ def create_app(test_config=None):
       "current_category": None 
     })
   
-    
-  '''
-  def submit_search():
-    try:#throwing 422
-      search_term = request.json.get('searchTerm',None) 
-      questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
-      formatted_questions = [question.format() for question in questions]
-
-      if len(questions) == 0:
-        abort(404) #resource not found
-
-        return jsonify({
-          "success": True,
-          "questions": formatted_questions,
-          "total_questions": len(questions),
-          "current_category": None 
-        })
-    
-      #abort(404) #resource not found
-    
-    #except Exception as e:
-      #print("Exception is: ", e)
-      #abort(422)
-
-    #curl --location --request POST 'http://127.0.0.1:5000/questions/search' --header 'Content-Type: application/json' --data-raw '{"search_term": "title"}' 
-    #curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search #https://knowledge.udacity.com/questions/240733
-  '''
-
   '''
   @TODO: DONE *works; c.f. questions end point
   Create a GET endpoint to get questions based on category. 
@@ -260,6 +219,7 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  #Get questions by category
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_by_category(category_id):
 
@@ -277,28 +237,6 @@ def create_app(test_config=None):
         "current_category": category_id 
         })
 
-
-#  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
-#    def get_by_category(category_id):
-#
-#      try:
-#        questions = Question.query.filter(Question.category == str(category_id)).all()
-#        formatted_questions = [question.format() for question in questions]
-#
-#        if len(questions) == 0:
-#          abort(404) #resource not found
-#      
-#        else:
-#          return jsonify({
-#            "success": True,
-#            "questions": formatted_questions,
-#            "total_questions": len(Question.query.all()),
-#            "current_category": category_id 
-#            })
-#
-#      except:
-#        abort(422) 
-#
   '''
   @TODO: DONE, working
   Create a POST endpoint to get questions to play the quiz. 
@@ -310,10 +248,9 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
-  #Quiz - questions to play; QuizView #50
+  #Quiz - questions to play; FE: QuizView #50
   @app.route('/quizzes', methods=['POST'])
   def questions_to_play():
-    #Select category, question - using https://knowledge.udacity.com/questions/113018  (FE not getting cat)
     data = request.get_json()
     
     category_id = int(data['quiz_category']['id']) 
@@ -328,7 +265,6 @@ def create_app(test_config=None):
       #Get questions with selected category that have not been played
       else:
         get_questions = (Question.query.filter(Question.category==category_id).filter(Question.id.notin_(previous_questions)).all()) 
-        #kbase ref 113018
 
       questions = [question.format() for question in get_questions] 
       
@@ -338,7 +274,6 @@ def create_app(test_config=None):
       else:
         quest = questions[random.randrange(0, len(questions))]
       
-
       return jsonify({
         "question": quest,
         "success": True
@@ -346,7 +281,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print("Exception >> ", e )
-      abort(422)#check if correct error
+      abort(422)
 
   '''
   @TODO: DONE
