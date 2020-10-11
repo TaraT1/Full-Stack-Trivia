@@ -1,44 +1,105 @@
-# Full Stack API Final Project
 
-## Full Stack Trivia
+#API Documentation
 
-Udacity is invested in creating bonding experiences for its employees and students. A bunch of team members got the idea to hold trivia on a regular basis and created a  webpage to manage the trivia app and play the game, but their API experience is limited and still needs to be built out. 
+Trivia API is organized around REST principles. Resource-oriented URLs return JSON encoded responses and use standard http respoonse codes, authentication, and verbs.
 
-That's where you come in! Help them finish the trivia app so they can start holding trivia and seeing who's the most knowledgeable of the bunch. The application must:
+- Completed the partial Flask and SQLAlchemy server provided by Udacity
+- Defined and updated endpoints 
+- Updated React frontend endpoints 
+- Formatted data responses for React frontend consumption
 
-1) Display questions - both all questions and by category. Questions should show the question, category and difficulty rating by default and can show/hide the answer. 
-2) Delete questions.
-3) Add questions and require that they include question and answer text.
-4) Search for questions based on a text query string.
-5) Play the quiz game, randomizing either all questions or within a specific category. 
-
-Completing this trivia app will give you the ability to structure plan, implement, and test an API - skills essential for enabling your future applications to communicate with others. 
-
-## Tasks
-
-There are `TODO` comments throughout project. Start by reading the READMEs in:
-
-1. [`./frontend/`](./frontend/README.md)
-2. [`./backend/`](./backend/README.md)
-
-We recommend following the instructions in those files in order. This order will look familiar from our prior work in the course.
-
-## Starting and Submitting the Project
-
-[Fork](https://help.github.com/en/articles/fork-a-repo) the [project repository]() and [Clone](https://help.github.com/en/articles/cloning-a-repository) your forked repository to your machine. Work on the project locally and make sure to push all your changes to the remote repository before submitting the link to your repository in the Classroom. 
-
-## About the Stack
-
-We started the full stack application for you. It is desiged with some key functional areas:
+##Inital Setup
+Locally hosted, Trivia runs in a virtual environment in Python 3.7. 
 
 ### Backend
-
-The `./backend` directory contains a partially completed Flask and SQLAlchemy server. You will work primarily in app.py to define your endpoints and can reference models.py for DB and SQLAlchemy setup. 
+- Install Flask and SQLAlchemy requirements listed in ./backend/requirements.txt. 
+- Setup databse and run the server. Details are in ./backend/README.md
 
 ### Frontend
+This project depends on Nodejs and Node Package Manager. Details are in ./frontend/README.md.
 
-The `./frontend` directory contains a complete React frontend to consume the data from the Flask server. You will need to update the endpoints after you define them in the backend. Those areas are marked with TODO and can be searched for expediency. 
+## HTTP Status Code Summary
+200: success
 
-Pay special attention to what data the frontend is expecting from each API response to help guide how you format your API. 
+### Errors
+400: bad request
+404: resource not found
+422: unprocessable
+500: internal server error
 
-[View the README.md within ./frontend for more details.](./frontend/README.md)
+### Sample Curl Request
+Posts search term "title" for list of questions
+curl -X POST -H "Content-Type: application/json" -d '{"searchTerm”:”title”}’ http://127.0.0.1:5000/questions/search
+
+## Endpoints
+GET '/categories'
+GET '/questions'
+GET '/categories/<int:category_id>/questions'
+POST '/questions/add'
+POST '/questions/search'
+POST '/quizzes'
+DELETE '/questions/<int:question_id>'
+
+GET '/categories'
+- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- Request Arguments: None
+- Returns: An object with a single key and category string key:value pairs 
+{ '1' : "Science",
+  '2' : "Art",
+  '3' : "Geography",
+  '4' : "History",
+  '5' : "Entertainment",
+  '6' : "Sports"}
+
+GET '/questions'
+- Fetches list of questions with pagination for every 10 questions
+- Request Arguments: category, difficulty
+- Returns: paginated list of questions and full list of categories. Each question has single key and current category.
+{ "success": True,
+  "questions": list,
+  "total_questions": integer,
+  "categories": string,
+  "current_category": integer }
+
+GET '/categories/<int:category_id>/questions'
+- Fetches list of questions given category
+- Request Arguments: <int:category_id>
+- Returns: list of questions in category, category_id, and total number of quiz questions
+{ "success": True,
+  "questions": list,
+  "total_questions": integer,
+  "current_category": integer }
+
+POST '/questions/add'
+- Creates new question
+- Request arguments: question, answer, difficulty, and category
+- Returns object
+{ "success": True,
+  "question": new_question,
+  "answer": new_answer,
+  "difficulty": integer,
+  "category": integer}
+
+POST '/questions/search'
+- Returns questions containing search term
+- Request argument: search term
+- Returns: list of questions, each with answer, single key, and category.
+{ "success": True,
+  "questions": list, 
+  "total_questions": integer,
+  "current_category": integer }
+
+POST '/quizzes'
+- Gets randomized questions to play given category, avoiding previously played questions
+- Request argument: category
+- Returns list of randomized questions
+{ "question": list,
+  "success": True }
+
+DELETE '/questions/<int:question_id>'
+- Deletes selected question
+- Request Arguments: question_id
+- Returns: confirmation that deletion was successful, the deleted question_id, and the total number of questions
+{ "success": True,
+  "deleted": question_id,
+  "total_questions": integer }

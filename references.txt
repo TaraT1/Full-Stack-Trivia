@@ -1,0 +1,68 @@
+References for Trivia Project
+
+API
+Stripe documentation model - https://stripe.com/docs/api
+https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design
+
+query
+https://hackersandslackers.com/database-queries-sqlalchemy-orm/
+
+node
+https://docs.microsoft.com/en-us/windows/nodejs/setup-on-wsl2
+
+python
+https://www.python.org/dev/peps/pep-0008/
+
+E. Matthes, Python Crash Course: A Hands-on, Project-based Introduction to Programming 2nd edition (No Starch Press, San Francisco, 2019).o
+
+React
+https://reactjs.org/docs/thinking-in-react.html
+
+query notin:
+https://stackoverflow.com/questions/26182027/how-to-use-not-in-clause-in-sqlalchemy-orm-query
+
+function random: 
+https://stackoverflow.com/questions/60805/getting-random-row-through-sqlalchemy
+select.order_by(func.random()) # for PostgreSQL, SQLite
+
+Udacity knowledgebase
+database
+https://knowledge.udacity.com/questions/134240
+
+category formatting error
+https://knowledge.udacity.com/questions/74972> 
+-Alexander M
+
+curl /questions
+https://knowledge.udacity.com/questions/116054
+-Deeksha P
+
+Invalid React child error
+https://knowledge.udacity.com/questions/233578
+https://knowledge.udacity.com/questions/232605
+https://knowledge.udacity.com/questions/271669
+https://knowledge.udacity.com/questions/310576
+
+Search questions
+https://knowledge.udacity.com/questions/88861
+https://knowledge.udacity.com/questions/72584
+
+Questions by category
+https://knowledge.udacity.com/questions/280959#284132 
+
+API Data Format for front end
+https://knowledge.udacity.com/questions/323820
+https://knowledge.udacity.com/questions/58505
+
+quizzes
+https://knowledge.udacity.com/questions/234306
+https://knowledge.udacity.com/questions/113018
+
+Improve answer evaluation (o) (needs work)
+https://knowledge.udacity.com/questions/74595
+
+
+
+
+
+
