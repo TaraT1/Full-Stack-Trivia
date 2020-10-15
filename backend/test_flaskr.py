@@ -89,10 +89,10 @@ class TriviaTestCase(unittest.TestCase):
 
     #Test to delete existing quesstion
     def test_delete_question(self):#works
-        res = self.client().delete('/questions/29')
+        res = self.client().delete('/questions/10')
         data = json.loads(res.data) 
 
-        question = Question.query.filter(Question.id == 29).one_or_none()
+        question = Question.query.filter(Question.id == 10).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
@@ -118,7 +118,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
         self.assertTrue(data['total_questions'])
 
-    #Test for failure loading questions given incompatible search term
+    #Test for search term not found
     def test_404_search_not_found(self):#success
         res = self.client().post(
             '/questions/search', 

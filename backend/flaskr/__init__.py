@@ -182,6 +182,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print('Exception is >> ',e)
+      #print(sys.exc_info())
       abort(422)
 
   '''
@@ -202,6 +203,7 @@ def create_app(test_config=None):
     formatted_questions = [question.format() for question in questions]
 
     if len(questions) == 0:
+      formatted_questions = [] 
       abort(404)
 
     return jsonify({
@@ -272,7 +274,7 @@ def create_app(test_config=None):
       if (len(questions) == 0):
         quest= None
       else:
-        quest = questions[random.randrange(0, len(questions))]
+        quest = questions[random.randrange(0, len(questions))] #rvu: can also use func.random() in your SQLAlchemy
       
       return jsonify({
         "question": quest,
