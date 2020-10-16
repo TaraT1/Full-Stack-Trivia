@@ -135,6 +135,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print("Exception: ",e)
+      print(sys.exc_info())
       abort(422) #unprocessable
 
   '''
@@ -182,7 +183,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print('Exception is >> ',e)
-      #print(sys.exc_info())
+      print(sys.exc_info())
       abort(422)
 
   '''
@@ -283,6 +284,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print("Exception >> ", e )
+      print(sys.exc_info())
       abort(422)
 
   '''
