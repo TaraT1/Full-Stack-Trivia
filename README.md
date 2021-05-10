@@ -1,4 +1,12 @@
 # Full Stack API Final Project
+This was the second project of Udacity's Full Stacks Nanodegree. In this API Development and Documentation module, I learned to: 
+* Organize API Endpoints
+* Handle Cross-Origin Resource Sharing (CORS)
+* Parse the request path and body
+* Use POST, PATCH, and DELETE requests in Flask
+* Handle errors
+
+The API documentation I developed is README_API_doc.md.
 
 ## Full Stack Trivia
 
@@ -12,33 +20,22 @@ That's where you come in! Help them finish the trivia app so they can start hold
 4) Search for questions based on a text query string.
 5) Play the quiz game, randomizing either all questions or within a specific category. 
 
-Completing this trivia app will give you the ability to structure plan, implement, and test an API - skills essential for enabling your future applications to communicate with others. 
+Completing this trivia app shows the ability to structure plan, implement, and test an API - skills essential for enabling future applications to communicate with others. 
 
-## Tasks
-
-There are `TODO` comments throughout project. Start by reading the READMEs in:
-
-1. [`./frontend/`](./frontend/README.md)
-2. [`./backend/`](./backend/README.md)
-
-We recommend following the instructions in those files in order. This order will look familiar from our prior work in the course.
-
-## Starting and Submitting the Project
+## Starting the Project
 
 [Fork](https://help.github.com/en/articles/fork-a-repo) the [project repository]() and [Clone](https://help.github.com/en/articles/cloning-a-repository) your forked repository to your machine. Work on the project locally and make sure to push all your changes to the remote repository before submitting the link to your repository in the Classroom. 
 
 ## About the Stack
 
-We started the full stack application for you. It is desiged with some key functional areas:
+This full stack application was desiged with some key functional areas:
 
 ### Backend
 
-The `./backend` directory contains a partially completed Flask and SQLAlchemy server. You will work primarily in app.py to define your endpoints and can reference models.py for DB and SQLAlchemy setup. 
+The `./backend` directory contains Flask and SQLAlchemy server. app.py contain endpoints and can reference models.py for DB and SQLAlchemy setup. 
 
 ### Frontend
 
-The `./frontend` directory contains a complete React frontend to consume the data from the Flask server. You will need to update the endpoints after you define them in the backend. Those areas are marked with TODO and can be searched for expediency. 
-
-Pay special attention to what data the frontend is expecting from each API response to help guide how you format your API. 
+The `./frontend` directory contains a complete React frontend to consume the data from the Flask server. I updated the endpoints after defining them in the backend according to expected data for each API response.
 
 [View the README.md within ./frontend for more details.](./frontend/README.md)
